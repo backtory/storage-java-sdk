@@ -1,0 +1,3 @@
+rootProject.name = 'FileStorageSDK'
+include 'FileStorageSDKTest'
+
