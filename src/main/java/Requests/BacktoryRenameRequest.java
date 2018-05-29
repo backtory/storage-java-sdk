@@ -1,6 +1,6 @@
 package Requests;
 
-import Internal.BacktoryFileStrorageService;
+import Internal.BacktoryFileStorageService;
 import Responses.BacktoryResponse;
 import Structure.RenameInfo;
 import Structure.RenameItemsInfo;
@@ -16,38 +16,39 @@ public class BacktoryRenameRequest implements BacktoryRequest<String> {
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final String xBacktoryStorageId;
     private final String masterAccessToken;
-    private final BacktoryFileStrorageService backtoryFileStrorageService;
+    private final BacktoryFileStorageService backtoryFileStorageService;
     private RenameItemsInfo renameItemsInfo;
     private BacktoryResponse<String> backtoryResponse;
 
-    public BacktoryRenameRequest(RenameItemsInfo renameItemsInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStrorageService backtoryFileStrorageService) {
+    public BacktoryRenameRequest(RenameItemsInfo renameItemsInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStorageService backtoryFileStorageService) {
         this.xBacktoryStorageId = xBacktoryStorageId;
         this.masterAccessToken = masterAccessToken;
         this.renameItemsInfo = renameItemsInfo;
-        this.backtoryFileStrorageService = backtoryFileStrorageService;
+        this.backtoryFileStorageService = backtoryFileStorageService;
     }
 
-    public BacktoryRenameRequest(RenameInfo renameInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStrorageService backtoryFileStrorageService) {
+    public BacktoryRenameRequest(RenameInfo renameInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStorageService backtoryFileStorageService) {
         this.xBacktoryStorageId = xBacktoryStorageId;
         this.masterAccessToken = masterAccessToken;
         ArrayList<RenameInfo> renameInfoArrayList = new ArrayList<>();
         renameInfoArrayList.add(renameInfo);
         this.renameItemsInfo = new RenameItemsInfo(renameInfoArrayList);
-        this.backtoryFileStrorageService = backtoryFileStrorageService;
+        this.backtoryFileStorageService = backtoryFileStorageService;
     }
 
     @Override
     public BacktoryResponse<String> perform() throws IOException {
-        Call<RenameResponse> call = backtoryFileStrorageService.rename(
+        Call<RenameResponse> call = backtoryFileStorageService.rename(
                 "Bearer" + masterAccessToken,
                 xBacktoryStorageId,
                 renameItemsInfo
         );
 
         Response<RenameResponse> response = call.execute();
-        if (response.isSuccessful())
-            backtoryResponse = new BacktoryResponse<>(response.code(), response.body().getPaths());
-        else
+        if (response.isSuccessful()) {
+            System.out.println(response.body().getNewPaths());
+            backtoryResponse = new BacktoryResponse<>(response.code(), response.body().getNewPaths());
+        } else
             backtoryResponse = new BacktoryResponse<>(response.code(), response.errorBody().string());
 
         return backtoryResponse;

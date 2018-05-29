@@ -1,6 +1,6 @@
 package Requests;
 
-import Internal.BacktoryFileStrorageService;
+import Internal.BacktoryFileStorageService;
 import Responses.BacktoryResponse;
 import Structure.DeleteInfo;
 import okhttp3.MediaType;
@@ -8,32 +8,33 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class BacktoryDeleteRequest implements BacktoryRequest {
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    private final BacktoryFileStrorageService backtoryFileStrorageService;
+    private final BacktoryFileStorageService backtoryFileStorageService;
     private DeleteInfo deleteInfo;
     private final String masterAccessToken;
     private final String xBacktoryStorageId;
     private BacktoryResponse<String> backtoryResponse;
 
-    public BacktoryDeleteRequest(DeleteInfo deleteInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStrorageService backtoryFileStrorageService) {
+    public BacktoryDeleteRequest(DeleteInfo deleteInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStorageService backtoryFileStorageService) {
         this.deleteInfo = deleteInfo;
         this.masterAccessToken = masterAccessToken;
         this.xBacktoryStorageId = xBacktoryStorageId;
-        this.backtoryFileStrorageService = backtoryFileStrorageService;
+        this.backtoryFileStorageService = backtoryFileStorageService;
     }
 
     @Override
     public BacktoryResponse<String> perform() throws IOException {
-        Call call =  backtoryFileStrorageService.delete(
-                "Bearer" + masterAccessToken,
+        Call call =  backtoryFileStorageService.delete(
+                "Bearer " + masterAccessToken,
                 xBacktoryStorageId,
                 deleteInfo
         );
         Response response = call.execute();
         if (response.isSuccessful())
-            backtoryResponse = new BacktoryResponse<>(response.code(), "");
+            backtoryResponse = new BacktoryResponse<>(response.code(), new ArrayList<String>());
         else
             backtoryResponse = new BacktoryResponse<>(response.code(), response.errorBody().string());
 

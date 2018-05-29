@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BacktoryFileStorage {
-    private BacktoryFileStrorageService backtoryFileStrorageService = ServiceGenerator.createService(BacktoryFileStrorageService.class);
+    private BacktoryFileStorageService backtoryFileStorageService = ServiceGenerator.createService(BacktoryFileStorageService.class);
     private String xBacktoryStorageId;
     private String masterAccessToken;
     private TokenProvider tokenProvider;
@@ -27,7 +27,7 @@ public class BacktoryFileStorage {
     public BacktoryResponse<String> rename(String pathToRename, String newFileName) throws IOException {
         masterAccessToken = tokenProvider.getToken();
         RenameInfo renameInfo = new RenameInfo(pathToRename, newFileName);
-        BacktoryRenameRequest backtoryRenameRequest = new BacktoryRenameRequest(renameInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+        BacktoryRenameRequest backtoryRenameRequest = new BacktoryRenameRequest(renameInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
         return backtoryRenameRequest.perform();
     }
 
@@ -40,7 +40,7 @@ public class BacktoryFileStorage {
             list.add(renameInfo);
         }
         RenameItemsInfo renameItemsInfo = new RenameItemsInfo(list);
-        BacktoryRenameRequest backtoryRenameRequest = new BacktoryRenameRequest(renameItemsInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+        BacktoryRenameRequest backtoryRenameRequest = new BacktoryRenameRequest(renameItemsInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
         return backtoryRenameRequest.perform();
     }
 
@@ -51,7 +51,7 @@ public class BacktoryFileStorage {
         ArrayList<BacktoryResponse> responses = new ArrayList<>();
         for (int i = 0; i < pathToRename.size(); i++) {
             renameInfo = new RenameInfo(pathToRename.get(i), newFileName.get(i));
-            backtoryRenameRequest = new BacktoryRenameRequest(renameInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+            backtoryRenameRequest = new BacktoryRenameRequest(renameInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
             responses.add(backtoryRenameRequest.perform());
         }
         return responses;
@@ -64,7 +64,7 @@ public class BacktoryFileStorage {
     public BacktoryResponse<String> upload(String fileToUpload, String path, boolean replacing) throws IOException {
         masterAccessToken = tokenProvider.getToken();
         UploadInfo uploadInfo = new UploadInfo(fileToUpload, path, replacing);
-        BacktoryUploadRequest backtoryUploadRequest = new BacktoryUploadRequest(uploadInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+        BacktoryUploadRequest backtoryUploadRequest = new BacktoryUploadRequest(uploadInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
         return backtoryUploadRequest.perform();
     }
 
@@ -84,7 +84,7 @@ public class BacktoryFileStorage {
             list.add(uploadInfo);
         }
         UploadItemsInfo uploadItemsInfo = new UploadItemsInfo(list);
-        BacktoryUploadRequest backtoryUploadRequest = new BacktoryUploadRequest(uploadItemsInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+        BacktoryUploadRequest backtoryUploadRequest = new BacktoryUploadRequest(uploadItemsInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
         return backtoryUploadRequest.perform();
     }
 
@@ -102,7 +102,7 @@ public class BacktoryFileStorage {
         BacktoryUploadRequest backtoryUploadRequest;
         for (int i = 0; i < fileToUpload.size(); i++) {
             uploadInfo = new UploadInfo(fileToUpload.get(i), path.get(i), replacing.get(i));
-            backtoryUploadRequest = new BacktoryUploadRequest(uploadInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+            backtoryUploadRequest = new BacktoryUploadRequest(uploadInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
             BacktoryResponse<String> response = backtoryUploadRequest.perform();
             responses.add(response);
         }
@@ -119,7 +119,7 @@ public class BacktoryFileStorage {
             if (uploadInfo.getFileToUpload().isDirectory()) {
                 uploadDirectory(uploadInfo.getFileToUpload().getPath(), uploadInfo.getPath());
             } else {
-                backtoryUploadRequest = new BacktoryUploadRequest(uploadInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+                backtoryUploadRequest = new BacktoryUploadRequest(uploadInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
                 responses.add(backtoryUploadRequest.perform());
             }
         }
@@ -160,7 +160,7 @@ public class BacktoryFileStorage {
     public BacktoryResponse<String> deleteFiles(ArrayList<String> urls, ArrayList<Boolean> forced) throws IOException {
         masterAccessToken = tokenProvider.getToken();
         DeleteInfo deleteInfo = new DeleteInfo(urls, forced);
-        BacktoryDeleteRequest backtoryDeleteRequest = new BacktoryDeleteRequest(deleteInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStrorageService);
+        BacktoryDeleteRequest backtoryDeleteRequest = new BacktoryDeleteRequest(deleteInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
         return backtoryDeleteRequest.perform();
     }
 

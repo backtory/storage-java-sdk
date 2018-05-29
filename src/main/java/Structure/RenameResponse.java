@@ -3,9 +3,9 @@ package Structure;
 import java.util.List;
 
 public class RenameResponse {
-    List<String> paths;
+    List<String> newPaths;
 
-    public List<String> getPaths() {
-        return paths;
+    public List<String> getNewPaths() {
+        return newPaths;
     }
 }

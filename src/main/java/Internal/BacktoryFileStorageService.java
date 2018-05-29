@@ -10,7 +10,7 @@ import retrofit2.http.*;
 
 import java.util.List;
 
-public interface BacktoryFileStrorageService {
+public interface BacktoryFileStorageService {
 
     @POST ("files/")
     @Multipart
@@ -30,7 +30,7 @@ public interface BacktoryFileStrorageService {
     @POST ("files/delete")
     Call<Void> delete (
             @Header("Authorization") String authorization,
-            @Header("X-Backtory-Strorage-Id") String xBacktoryStorageId,
+            @Header("X-Backtory-Storage-Id") String xBacktoryStorageId,
             @Body DeleteInfo deleteInfo
     );
 

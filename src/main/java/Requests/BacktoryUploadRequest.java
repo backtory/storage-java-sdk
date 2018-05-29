@@ -1,6 +1,6 @@
 package Requests;
 
-import Internal.BacktoryFileStrorageService;
+import Internal.BacktoryFileStorageService;
 import Responses.BacktoryResponse;
 import Structure.UploadInfo;
 import Structure.UploadItemsInfo;
@@ -12,6 +12,7 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,22 +25,22 @@ public class BacktoryUploadRequest implements BacktoryRequest<String> {
     private final String masterAccessToken;
     private List<String> responseList;
     private BacktoryResponse<String> backtoryResponse;
-    private BacktoryFileStrorageService backtoryFileStrorageService;
+    private BacktoryFileStorageService backtoryFileStorageService;
 
-    public BacktoryUploadRequest(UploadItemsInfo uploadInfoItems, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStrorageService backtoryFileStrorageService) {
+    public BacktoryUploadRequest(UploadItemsInfo uploadInfoItems, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStorageService backtoryFileStorageService) {
         this.uploadInfoItems = uploadInfoItems;
         this.xBacktoryStorageId = xBacktoryStorageId;
         this.masterAccessToken = masterAccessToken;
-        this.backtoryFileStrorageService = backtoryFileStrorageService;
+        this.backtoryFileStorageService = backtoryFileStorageService;
     }
 
-    public BacktoryUploadRequest(UploadInfo uploadInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStrorageService backtoryFileStrorageService) {
+    public BacktoryUploadRequest(UploadInfo uploadInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStorageService backtoryFileStorageService) {
         this.xBacktoryStorageId = xBacktoryStorageId;
         this.masterAccessToken = masterAccessToken;
         ArrayList<UploadInfo> list = new ArrayList<>();
         list.add(uploadInfo);
         this.uploadInfoItems = new UploadItemsInfo(list);
-        this.backtoryFileStrorageService = backtoryFileStrorageService;
+        this.backtoryFileStorageService = backtoryFileStorageService;
     }
 
     @Override
@@ -54,12 +55,13 @@ public class BacktoryUploadRequest implements BacktoryRequest<String> {
                         uploadInfo.getPath()
                     )
             );
-            RequestBody reqiestBody = RequestBody.create(MEDIATYPE_MULTIPART, uploadInfo.getFileToUpload());
+            File file = uploadInfo.getFileToUpload();
+            RequestBody requestBody = RequestBody.create(MEDIATYPE_MULTIPART, file);
             uploadListItems.add(
                     MultipartBody.Part.createFormData(
                         String.format("fileItems[%d].fileToUpload", i),
-                        uploadInfo.getFileToUpload().getName(),
-                        reqiestBody
+                        file.getName(),
+                        requestBody
                     )
             );
             uploadListItems.add(
@@ -70,17 +72,16 @@ public class BacktoryUploadRequest implements BacktoryRequest<String> {
             );
         }
 
-        Call<UploadResponse> call = backtoryFileStrorageService.upload(
+        Call<UploadResponse> call = backtoryFileStorageService.upload(
                 "Bearer" + masterAccessToken,
                 xBacktoryStorageId,
                 uploadListItems
         );
-        System.out.println(call.execute().body().getSavedFileUrls());
         Response<UploadResponse> response = call.execute();
         if (response.isSuccessful()) {
             System.out.println("MotherFucker Successful :)");
-            System.out.println(response.body().getSavedFileUrls());
-            backtoryResponse = new BacktoryResponse<String>(response.code(), response.body().getSavedFileUrls());
+            System.out.println("response: " + response.body().getSavedFilesUrls());
+            backtoryResponse = new BacktoryResponse<String>(response.code(), response.body().getSavedFilesUrls());
         } else {
             System.out.println("Fucking Unsuccessful :(");
             backtoryResponse = new BacktoryResponse<String>(response.code(), response.errorBody().string());
