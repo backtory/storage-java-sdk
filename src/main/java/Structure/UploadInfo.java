@@ -9,7 +9,7 @@ public class UploadInfo {
 
     public UploadInfo(String fileToUpload, String path, boolean replacing) {
         this.fileToUpload = new File(fileToUpload);
-        this.path = path;
+        this.path = path.charAt(0) == '/' ? path : "/" + path;
         this.replacing = replacing;
     }
 

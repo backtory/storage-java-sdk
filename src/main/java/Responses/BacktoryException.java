@@ -1,40 +1,32 @@
 package Responses;
 
-import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.util.Properties;
-
 public class BacktoryException {
-    private int statusCode;
+    private int status;
     private String error;
+    private String exception;
     private String message;
+    private String path;
 
-    public BacktoryException(int statusCode, String body) throws IOException {
-        setFields(statusCode, body);
+    public BacktoryException() {
     }
 
-    private void setFields(int statusCode, String body) throws IOException {
-        Gson gson = new Gson();
-        Properties data = gson.fromJson(body, Properties.class);
-        this.statusCode = statusCode;
-        error = data.getProperty("error");
-        message = data.getProperty("message");
+    public int status() {
+        return status;
     }
 
-    public String getExceptionString() {
-        return (new Gson()).toJson(this);
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public String getError() {
+    public String error() {
         return error;
     }
 
-    public String getMessage() {
+    public String exception() {
+        return exception;
+    }
+
+    public String message() {
         return message;
+    }
+
+    public String path() {
+        return path;
     }
 }

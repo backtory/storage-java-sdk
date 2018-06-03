@@ -1,9 +1,6 @@
 package Internal;
 
-import Requests.BacktoryCreateDirectoryRequest;
-import Requests.BacktoryDeleteRequest;
-import Requests.BacktoryRenameRequest;
-import Requests.BacktoryUploadRequest;
+import Requests.*;
 import Responses.BacktoryResponse;
 import Structure.*;
 
@@ -14,10 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BacktoryFileStorage {
-    private BacktoryFileStorageService backtoryFileStorageService = ServiceGenerator.createService(BacktoryFileStorageService.class);
+    private final BacktoryFileStorageService backtoryFileStorageService = ServiceGenerator.createService(BacktoryFileStorageService.class);
     private String xBacktoryStorageId;
     private String masterAccessToken;
     private TokenProvider tokenProvider;
+    private File tokenProviderFile;
+
+    public void init(String xBacktoryAuthenticationId, String xBacktoryAuthenticationKey, String xBacktoryStorageId, String tokenProviderFileAddress) {
+        this.xBacktoryStorageId = xBacktoryStorageId;
+        tokenProviderFile = new File(tokenProviderFileAddress);
+        tokenProvider = new TokenProvider(xBacktoryAuthenticationId, xBacktoryAuthenticationKey, tokenProviderFile);
+        tokenProviderFile = new File(tokenProviderFileAddress);
+    }
 
     public void init(String xBacktoryAuthenticationId, String xBacktoryAuthenticationKey, String xBacktoryStorageId) {
         this.xBacktoryStorageId = xBacktoryStorageId;
@@ -147,7 +152,7 @@ public class BacktoryFileStorage {
         return new UploadItemsInfo(list);
     }
 
-    public BacktoryResponse<String> delete(String url, boolean forced) throws IOException {
+    public BacktoryResponse<Void> delete(String url, boolean forced) throws IOException {
         if (url.indexOf("/") > 0)
             url = url.substring(url.indexOf("/"));
         ArrayList<String> urls = new ArrayList<>();
@@ -157,17 +162,17 @@ public class BacktoryFileStorage {
         return deleteFiles(urls, forcedList);
     }
 
-    public BacktoryResponse<String> deleteFiles(ArrayList<String> urls, ArrayList<Boolean> forced) throws IOException {
+    public BacktoryResponse<Void> deleteFiles(ArrayList<String> urls, ArrayList<Boolean> forced) throws IOException {
         masterAccessToken = tokenProvider.getToken();
         DeleteInfo deleteInfo = new DeleteInfo(urls, forced);
         BacktoryDeleteRequest backtoryDeleteRequest = new BacktoryDeleteRequest(deleteInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
         return backtoryDeleteRequest.perform();
     }
 
-    public BacktoryResponse<String> createDirectory(String path) throws IOException {
+    public BacktoryResponse<Void> createDirectory(String path) throws IOException {
         masterAccessToken = tokenProvider.getToken();
         CreateDirectoryInfo createDirectoryInfo = new CreateDirectoryInfo(path);
-        BacktoryCreateDirectoryRequest backtoryCreateDirectoryRequest = new BacktoryCreateDirectoryRequest(createDirectoryInfo, xBacktoryStorageId, masterAccessToken);
+        BacktoryCreateDirectoryRequest backtoryCreateDirectoryRequest = new BacktoryCreateDirectoryRequest(createDirectoryInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
         return backtoryCreateDirectoryRequest.perform();
     }
 
@@ -189,5 +194,12 @@ public class BacktoryFileStorage {
             if (!new File(aDirectoriesToUpload).exists())
                 throw new FileNotFoundException("Directory " + aDirectoriesToUpload + " does not exist");
         }
+    }
+
+    public BacktoryResponse<DirectoryListingJsonObject> directoryListing(String url, int pageNumber, int pageSize, String sortingType) throws IOException {
+        masterAccessToken = tokenProvider.getToken();
+        DirectoryListingInfo directoryListingInfo = new DirectoryListingInfo(url, pageNumber, pageSize, sortingType);
+        BacktoryDirectoryListingRequest backtoryDirectoryListingRequest = new BacktoryDirectoryListingRequest(directoryListingInfo, xBacktoryStorageId, masterAccessToken, backtoryFileStorageService);
+        return backtoryDirectoryListingRequest.perform();
     }
 }

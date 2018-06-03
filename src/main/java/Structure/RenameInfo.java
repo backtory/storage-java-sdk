@@ -5,7 +5,7 @@ public class RenameInfo {
     String newFileName;
 
     public RenameInfo(String pathToRename, String newFileName) {
-        this.pathToRename = pathToRename;
+        this.pathToRename = pathToRename.charAt(0) == '/' ? pathToRename : "/" + pathToRename;
         this.newFileName = newFileName;
     }
 }

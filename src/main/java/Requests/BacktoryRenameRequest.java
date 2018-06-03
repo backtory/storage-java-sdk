@@ -1,6 +1,7 @@
 package Requests;
 
 import Internal.BacktoryFileStorageService;
+import Internal.ErrorUtils;
 import Responses.BacktoryResponse;
 import Structure.RenameInfo;
 import Structure.RenameItemsInfo;
@@ -43,38 +44,11 @@ public class BacktoryRenameRequest implements BacktoryRequest<String> {
                 xBacktoryStorageId,
                 renameItemsInfo
         );
-
         Response<RenameResponse> response = call.execute();
-        if (response.isSuccessful()) {
-            System.out.println(response.body().getNewPaths());
-            backtoryResponse = new BacktoryResponse<>(response.code(), response.body().getNewPaths());
-        } else
-            backtoryResponse = new BacktoryResponse<>(response.code(), response.errorBody().string());
-
+        if (response.isSuccessful())
+            backtoryResponse = new BacktoryResponse<>(response.code(), response.body().getNewPaths(), null);
+        else
+            backtoryResponse = new BacktoryResponse<>(response.code(), null, ErrorUtils.parseError(response));
         return backtoryResponse;
-//        Gson gson = new Gson();
-//        String json = gson.toJson(renameItemsInfo);
-//        RequestBody requestBody = RequestBody.create(JSON, json);
-//        Request request = new Request.Builder()
-//                .addHeader("Authorization", "Bearer " + masterAccessToken)
-//                .addHeader("X-Backtory-Storage-Id", xBacktoryStorageId)
-//                .url(url + "files/rename")
-//                .post(requestBody)
-//                .build();
-//
-//        Response response = BacktoryRequest.client.newCall(request).execute();
-//        String responseBody = response.body().string();
-//        String[] responseArray = null;
-//        List<String> responseList = new ArrayList<>();
-//        String deserializedBody = responseBody;
-//        if (response.code() == 200) {
-//            deserializedBody = responseBody.substring(responseBody.indexOf('[') + 1, responseBody.indexOf(']'));
-//            responseArray = deserializedBody.split(",");
-//            for (String str : responseArray)
-//                responseList.add(str);
-//
-//        }
-//
-//        return new BacktoryResponse<>(response.code(), responseBody, responseList);
     }
 }

@@ -1,9 +1,6 @@
 package Internal;
 
-import Structure.DeleteInfo;
-import Structure.RenameItemsInfo;
-import Structure.RenameResponse;
-import Structure.UploadResponse;
+import Structure.*;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -27,11 +24,25 @@ public interface BacktoryFileStorageService {
             @Body RenameItemsInfo renameItemsInfo
     );
 
-    @POST ("files/delete")
+    @POST ("files/delete/")
     Call<Void> delete (
             @Header("Authorization") String authorization,
             @Header("X-Backtory-Storage-Id") String xBacktoryStorageId,
             @Body DeleteInfo deleteInfo
+    );
+
+    @POST ("directories/")
+    Call<Void> createDirectory (
+            @Header("Authorizatoin") String authorization,
+            @Header("X-Backtory-Storage-Id") String xBacktoryStorageId,
+            @Body CreateDirectoryInfo createDirectoryInfo
+    );
+
+    @POST ("files/directoryInfo/")
+    Call<DirListReponse> directoryListing (
+            @Header("Authorization") String authorization,
+            @Header("X-Backtory-Storage-Id") String xBacktoryStorageId,
+            @Body DirectoryListingInfo directoryListingInfo
     );
 
 }

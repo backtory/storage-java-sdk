@@ -1,6 +1,6 @@
 package Responses;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BacktoryResponse<ResponseType> {
@@ -15,27 +15,39 @@ public class BacktoryResponse<ResponseType> {
 
     private BacktoryException backtoryException;
     private int statusCode;
-    private ResponseType body;
+    private String body;
     private String message;
-    private List<String> responseList;
+    private List<ResponseType> responseList;
 
-    public BacktoryResponse(int statusCode, ResponseType body) throws IOException {
+    public BacktoryResponse(int statusCode, List<ResponseType> responseList, BacktoryException backtoryException) {
         this.statusCode = statusCode;
-        this.body = body;
-        backtoryException = new BacktoryException(this.statusCode, this.body.toString());
-    }
-
-    public BacktoryResponse(int statusCode, List<String> responseList) {
-        this.statusCode = statusCode;
-        this.body = body;
         this.responseList = responseList;
+        this.backtoryException = backtoryException;
     }
+
+//    public BacktoryResponse(int statusCode, String body) throws IOException {
+//        this.statusCode = statusCode;
+//        this.body = body;
+//        backtoryException = new BacktoryException(this.statusCode, this.body);
+//    }
+//
+//    public BacktoryResponse(int statusCode, List<ResponseType> responseList) {
+//        this.statusCode = statusCode;
+//        this.responseList = responseList;
+//    }
+//
+//    public BacktoryResponse(int statusCode, String body, List<ResponseType> responseList) throws IOException {
+//        this.statusCode = statusCode;
+//        this.body = body;
+//        this.responseList = responseList;
+//        backtoryException = statusCode > 200 && statusCode < 300 ? null : new BacktoryException(this.statusCode, this.body);
+//    }
 
     public boolean isSuccessful(){
         return statusCode >= 200 && statusCode < 300;
     }
 
-    public ResponseType getBody() {
+    public String getBody() {
         return body;
     }
 
@@ -47,11 +59,7 @@ public class BacktoryResponse<ResponseType> {
         return backtoryException;
     }
 
-    public List<String> getResponseList() {
-        return responseList;
-    }
-
-    public void setResponseList(List<String> responseList) {
-        this.responseList = responseList;
+    public List<ResponseType> getResponseList() {
+        return responseList == null ? new ArrayList<>() : responseList;
     }
 }

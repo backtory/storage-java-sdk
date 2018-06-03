@@ -1,22 +1,20 @@
 package Requests;
 
 import Internal.BacktoryFileStorageService;
+import Internal.ErrorUtils;
 import Responses.BacktoryResponse;
 import Structure.DeleteInfo;
-import okhttp3.MediaType;
 import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class BacktoryDeleteRequest implements BacktoryRequest {
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final BacktoryFileStorageService backtoryFileStorageService;
     private DeleteInfo deleteInfo;
     private final String masterAccessToken;
     private final String xBacktoryStorageId;
-    private BacktoryResponse<String> backtoryResponse;
+    private BacktoryResponse<Void> backtoryResponse;
 
     public BacktoryDeleteRequest(DeleteInfo deleteInfo, String xBacktoryStorageId, String masterAccessToken, BacktoryFileStorageService backtoryFileStorageService) {
         this.deleteInfo = deleteInfo;
@@ -26,7 +24,7 @@ public class BacktoryDeleteRequest implements BacktoryRequest {
     }
 
     @Override
-    public BacktoryResponse<String> perform() throws IOException {
+    public BacktoryResponse<Void> perform() throws IOException {
         Call call =  backtoryFileStorageService.delete(
                 "Bearer " + masterAccessToken,
                 xBacktoryStorageId,
@@ -34,21 +32,9 @@ public class BacktoryDeleteRequest implements BacktoryRequest {
         );
         Response response = call.execute();
         if (response.isSuccessful())
-            backtoryResponse = new BacktoryResponse<>(response.code(), new ArrayList<String>());
+            backtoryResponse = new BacktoryResponse<>(response.code(), null, null);
         else
-            backtoryResponse = new BacktoryResponse<>(response.code(), response.errorBody().string());
-
+            backtoryResponse = new BacktoryResponse<>(response.code(), null, ErrorUtils.parseError(response));
         return backtoryResponse;
-//        Gson gson = new Gson();
-//        String json = gson.toJson(deleteInfo);
-//        RequestBody requestBody = RequestBody.create(JSON, json);
-//        Request request = new Request.Builder()
-//                .addHeader("Authorization", "Bearer " + masterAccessToken)
-//                .addHeader("X-Backtory-Storage-Id", xBacktoryStorageId)
-//                .url("http://storage.backtory.com/files/delete")
-//                .post(requestBody)
-//                .build();
-//        Response response = BacktoryRequest.client.newCall(request).execute();
-//        return new BacktoryResponse<String>(response.code(), response.body().string());
     }
 }

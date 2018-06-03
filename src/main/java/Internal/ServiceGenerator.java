@@ -21,4 +21,8 @@ public class ServiceGenerator {
             Class<S> serviceClass) {
         return retrofit.create(serviceClass);
     }
+
+    public static Retrofit retrofit() {
+        return retrofit;
+    }
 }
