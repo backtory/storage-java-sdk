@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BacktoryFileStorageTest {
     private final BacktoryFileStorage backtoryFileStorage = new BacktoryFileStorage();
@@ -22,48 +23,68 @@ public class BacktoryFileStorageTest {
     /* ------------------------ Rename Test ------------------------ */
 
     @Test
+    public void returnOKStatusCodeOnRenameCorrectCall() throws IOException {
+        Assert.assertEquals(BacktoryResponse.OK_CREATED, backtoryFileStorage.upload("directory/delete.txt", "/").getStatusCode());
+        Assert.assertEquals(BacktoryResponse.OK, backtoryFileStorage.rename("/delete.txt", "mohsen.txt").getStatusCode());
+        Assert.assertEquals(BacktoryResponse.OK, backtoryFileStorage.delete("/mohsen.txt", true).getStatusCode());
+    }
+
+    @Test
     public void returnNotFoundErrorCodeWhenInvalidAddressFileGivenToRename() throws IOException {
         Assert.assertEquals(BacktoryResponse.NOT_FOUND, backtoryFileStorage.rename("lajsdlkf", "/UploadExample").getStatusCode());
     }
 
     @Test
     public void returnNotFoundErrorCodeForTheSpecificMissingFileWhenInvalidAddressFileGivenToRenameFilesMultipleRequests() throws IOException {
+        ArrayList<String> files = new ArrayList<>();
+        ArrayList<String> paths = new ArrayList<>();
+        files.add("directory/delete.txt");
+        files.add("directory/rename.txt");
+        paths.add("/");
+        paths.add("/");
+        List<BacktoryResponse<String>> uploadResponse = backtoryFileStorage.uploadFilesMultipleRequests(files, paths);
+        Assert.assertEquals(BacktoryResponse.OK_CREATED, uploadResponse.get(0).getStatusCode());
+        Assert.assertEquals(BacktoryResponse.OK_CREATED, uploadResponse.get(1).getStatusCode());
         ArrayList<String> pathToRename = new ArrayList<>();
         ArrayList<String> newFileName = new ArrayList<>();
-        pathToRename.add("alsjdflk");
-        pathToRename.add("newfile.txt");
-        pathToRename.add("1234.png");
-        newFileName.add("1234");
-        newFileName.add("new.txt");
-        newFileName.add("123.png");
+        pathToRename.add(uploadResponse.get(0).getResponseList().get(0));
+        pathToRename.add("ladjflajd");
+        newFileName.add("newFile.txt");
+        newFileName.add("123x");
         Assert.assertEquals(BacktoryResponse.NOT_FOUND, backtoryFileStorage.renameFilesMultipleRequest(pathToRename, newFileName).get(1).getStatusCode());
-        ArrayList<String>  correctPathToRename = new ArrayList<>();
-        ArrayList<String> correctNewFileName = new ArrayList<>();
-        correctPathToRename.add("new.txt");
-        correctPathToRename.add("123.png");
-        correctNewFileName.add("newfile.txt");
-        correctNewFileName.add("1234.png");
-        backtoryFileStorage.renameFilesMultipleRequest(correctPathToRename, correctNewFileName);
+        ArrayList<String> urls = new ArrayList<>();
+        urls.add("/newFile.txt");
+        urls.add("/rename.txt");
+        ArrayList<Boolean> forced = new ArrayList<>();
+        forced.add(true);
+        forced.add(true);
+        Assert.assertEquals(BacktoryResponse.OK, backtoryFileStorage.deleteFiles(urls, forced).getStatusCode());
     }
 
     @Test
     public void returnNotFoundErrorCodeForTheSpecificMissingFileWhenInvalidAddressFileGivenToRenameFilesSingleRequests() throws IOException {
+        ArrayList<String> fileToUpload = new ArrayList<>();
+        ArrayList<String> path = new ArrayList<>();
+        fileToUpload.add("directory/delete.txt");
+        fileToUpload.add("directory/rename.txt");
+        path.add("/");
+        path.add("/");
+        BacktoryResponse uploadResponse = backtoryFileStorage.uploadFilesSingleRequest(fileToUpload, path);
+        Assert.assertEquals(BacktoryResponse.OK_CREATED, uploadResponse.getStatusCode());
         ArrayList<String> pathToRename = new ArrayList<>();
         ArrayList<String> newFileName = new ArrayList<>();
-        pathToRename.add("newfile.txt");
-        pathToRename.add("alsjdflk");
-        pathToRename.add("1234.png");
-        newFileName.add("new.txt");
-        newFileName.add("1234");
-        newFileName.add("123.png");
+        pathToRename.add((String) uploadResponse.getResponseList().get(0));
+        pathToRename.add("ladjflajd");
+        newFileName.add("newFile.txt");
+        newFileName.add("123x");
         Assert.assertEquals(BacktoryResponse.NOT_FOUND, backtoryFileStorage.renameFilesSingleRequest(pathToRename, newFileName).getStatusCode());
-        ArrayList<String>  correctPathToRename = new ArrayList<>();
-        ArrayList<String> correctNewFileName = new ArrayList<>();
-        correctPathToRename.add("new.txt");
-        correctPathToRename.add("123.png");
-        correctNewFileName.add("newfile.txt");
-        correctNewFileName.add("1234.png");
-        backtoryFileStorage.renameFilesMultipleRequest(correctPathToRename, correctNewFileName);
+        ArrayList<String> urls = new ArrayList<>();
+        urls.add("/delete.txt");
+        urls.add("/rename.txt");
+        ArrayList<Boolean> forced = new ArrayList<>();
+        forced.add(true);
+        forced.add(true);
+        Assert.assertEquals(BacktoryResponse.OK, backtoryFileStorage.deleteFiles(urls, forced).getStatusCode());
     }
 
     @Test
@@ -84,33 +105,43 @@ public class BacktoryFileStorageTest {
     public void returnEXCEPTION_FAILEDStatusCodeWhenNewFileNameAlreadyExistInRenameFilesSingleRequest() throws IOException {
         backtoryFileStorage.upload("directory/delete.txt", "/");
         backtoryFileStorage.upload("directory/rename.txt", "/");
+        backtoryFileStorage.upload("directory/mohsen.txt", "/");
         ArrayList<String> pathToRename = new ArrayList<>();
         ArrayList<String> newFileName = new ArrayList<>();
         pathToRename.add("/delete.txt");
         pathToRename.add("/rename.txt");
-        newFileName.add("new.txt");
+        newFileName.add("mohsen.txt");
         newFileName.add("correct.txt");
         Assert.assertEquals(BacktoryResponse.EXCEPTION_FAILED, backtoryFileStorage.renameFilesSingleRequest(pathToRename, newFileName).getStatusCode());
         backtoryFileStorage.delete("/delete.txt", true);
         backtoryFileStorage.delete("/rename.txt", true);
+        backtoryFileStorage.delete("/mohsen.txt", true);
     }
 
     @Test
     public void returnEXCEPTION_FAILEDStatusCodeForCorrectFileWhenNewFileNameAlreadyExistInRenameFilesMultipleRequests() throws IOException {
         backtoryFileStorage.upload("directory/delete.txt", "/");
         backtoryFileStorage.upload("directory/rename.txt", "/");
+        backtoryFileStorage.upload("directory/mohsen.txt", "/");
         ArrayList<String> pathToRename = new ArrayList<>();
         ArrayList<String> newFileName = new ArrayList<>();
         pathToRename.add("/delete.txt");
         pathToRename.add("/rename.txt");
         newFileName.add("correct.txt");
-        newFileName.add("new.txt");
+        newFileName.add("mohsen.txt");
         Assert.assertEquals(BacktoryResponse.EXCEPTION_FAILED, backtoryFileStorage.renameFilesMultipleRequest(pathToRename, newFileName).get(1).getStatusCode());
         backtoryFileStorage.delete("/correct.txt", true);
         backtoryFileStorage.delete("/rename.txt", true);
+        backtoryFileStorage.delete("/mohsen.txt", true);
     }
 
     /* ------------------------ Upload Test ------------------------ */
+
+    @Test
+    public void returnOKStatusCodeOnUploadCorrectCall() throws IOException {
+        Assert.assertEquals(BacktoryResponse.OK_CREATED ,backtoryFileStorage.upload("directory/delete.txt", "/").getStatusCode());
+        Assert.assertEquals(BacktoryResponse.OK, backtoryFileStorage.delete("/delete.txt", true).getStatusCode());
+    }
 
     @Test(expected = FileNotFoundException.class)
     public void throwFileNotFoundExceptionWhenInvalidFileGiven() throws IOException {
@@ -147,7 +178,7 @@ public class BacktoryFileStorageTest {
     @Test
     public void getOK_CREATEDStatusCodeWhenPathNotExistsInBucketInUpload() throws IOException {
         Assert.assertEquals(BacktoryResponse.OK_CREATED, backtoryFileStorage.upload("directory/delete.txt", "/123").getStatusCode());
-        backtoryFileStorage.delete("/123/", true);
+        Assert.assertEquals(BacktoryResponse.OK, backtoryFileStorage.delete("/123/", true).getStatusCode());
     }
 
     @Test
@@ -157,10 +188,10 @@ public class BacktoryFileStorageTest {
         fileToUpload.add("directory/delete.txt");
         fileToUpload.add("directory/delete.txt");
         path.add("/");
-        path.add("/123");
+        path.add("/1234");
         Assert.assertEquals(BacktoryResponse.OK_CREATED, backtoryFileStorage.uploadFilesMultipleRequests(fileToUpload, path).get(1).getStatusCode());
         backtoryFileStorage.delete("/delete.txt", true);
-        backtoryFileStorage.delete("/123/delete.txt", true);
+        backtoryFileStorage.delete("/1234/", true);
     }
 
     /* ------------------------ Delete Test ------------------------ */
@@ -186,8 +217,8 @@ public class BacktoryFileStorageTest {
 
     @Test
     public void returnOKStatusCodeOnCreateDirectoryCorrectCall() throws IOException {
-        Assert.assertEquals(BacktoryResponse.OK_CREATED, backtoryFileStorage.createDirectory("/createDir"));
-        backtoryFileStorage.delete("/createDir", true);
+        Assert.assertEquals(BacktoryResponse.OK_CREATED, backtoryFileStorage.createDirectory("mohsen").getStatusCode());
+        Assert.assertEquals(BacktoryResponse.OK, backtoryFileStorage.delete("/mohsen/", true).getStatusCode());
     }
 
 }

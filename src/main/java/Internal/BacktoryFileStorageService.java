@@ -33,7 +33,7 @@ public interface BacktoryFileStorageService {
 
     @POST ("directories/")
     Call<Void> createDirectory (
-            @Header("Authorizatoin") String authorization,
+            @Header("Authorization") String authorization,
             @Header("X-Backtory-Storage-Id") String xBacktoryStorageId,
             @Body CreateDirectoryInfo createDirectoryInfo
     );
